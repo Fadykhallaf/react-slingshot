@@ -18,8 +18,9 @@ jobs:
       - checkout
       - run: npm i
       - save_cache:
+          paths:
+            - "/src/node_modules"
           key: "npm-packages"
-	        paths: "src/node_modules"
       - run: npm run lint
     
   test:
@@ -27,8 +28,9 @@ jobs:
 
     steps:
       - checkout
-      - restore-cache:
-          keys: "npm-packages"
+      - restore_cache:
+          keys:
+            - "npm-packages"
       - run: npm i
       - run: npm run test 
   
@@ -37,8 +39,6 @@ jobs:
 
     steps:
       - checkout
-      - restore_cache:
-          keys: "npm-packages"
       - run: npm audit
   
 
@@ -48,12 +48,8 @@ workflows:
       - build
       - test:
           requires:
-            - build
+            - "build"
       
       - analyze:
           requires:
-            - test
-
-    
-
-
+            - "test"
