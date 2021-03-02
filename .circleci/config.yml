@@ -1,0 +1,59 @@
+# This is a circleCI CI configuration file to run the following stages:-
+# 1- Build
+# 2- Test
+# 3- analyze and code statics
+
+version: 2.1
+
+#Using anchors to make code easier to maintain
+defaults: &defaults
+  docker:
+    - image: circleci/node:13.8.0
+
+jobs:
+  build:
+    <<: *defaults
+
+    steps:
+      - checkout
+      - run: npm i
+      - save_cache:
+          key: "npm-packages"
+	        paths: "src/node_modules"
+      - run: npm run lint
+    
+  test:
+    <<: *defaults
+
+    steps:
+      - checkout
+      - restore-cache:
+          keys: "npm-packages"
+      - run: npm i
+      - run: npm run test 
+  
+  analyze:
+    <<: *defaults
+
+    steps:
+      - checkout
+      - restore_cache:
+          keys: "npm-packages"
+      - run: npm audit
+  
+
+workflows:
+  lint-test-audit-workflow:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
+      
+      - analyze:
+          requires:
+            - test
+
+    
+
+
